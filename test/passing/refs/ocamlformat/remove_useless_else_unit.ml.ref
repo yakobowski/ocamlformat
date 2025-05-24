@@ -1,0 +1,15 @@
+let f x = if x then print_int 1
+
+let g y z = if y then if z then print_string "z"
+
+let h () =
+  if true then
+    let a = 1 in
+    let b = 2 in
+    a + b
+
+let with_comments () =
+  if true then (* comment for then *)
+    print_string "then"
+  (* comment for else *)
+  (* comment for unit *)
