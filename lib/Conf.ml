@@ -111,7 +111,9 @@ let conventional_profile from =
   ; type_decl_indent= elt 2
   ; wrap_comments= elt false
   ; wrap_docstrings= elt true
-  ; wrap_fun_args= elt true }
+  ; wrap_fun_args= elt true
+  ; remove_useless_else_unit= elt false
+  ; remove_useless_sequence_unit= elt false }
 
 let default_profile = conventional_profile
 
@@ -180,7 +182,9 @@ let ocamlformat_profile from =
   ; type_decl_indent= elt 2
   ; wrap_comments= elt false
   ; wrap_docstrings= elt true
-  ; wrap_fun_args= elt true }
+  ; wrap_fun_args= elt true
+  ; remove_useless_else_unit= elt false
+  ; remove_useless_sequence_unit= elt false }
 
 let janestreet_profile from =
   let elt content = Elt.make content from in
@@ -248,7 +252,9 @@ let janestreet_profile from =
   ; type_decl_indent= elt 2
   ; wrap_comments= elt false
   ; wrap_docstrings= elt false
-  ; wrap_fun_args= elt false }
+  ; wrap_fun_args= elt false
+  ; remove_useless_else_unit= elt false
+  ; remove_useless_sequence_unit= elt false }
 
 let default =
   let elt content = Elt.make content `Default in
@@ -922,6 +928,22 @@ module Formatting = struct
         update conf ~f:(fun f -> {f with leading_nested_match_parens= elt}) )
       (fun conf -> conf.fmt_opts.leading_nested_match_parens)
 
+  let remove_useless_else_unit =
+    let doc = "Removal of 'else ()'." in
+    let names = ["remove-useless-else-unit"] in
+    Decl.flag ~names ~default ~doc ~kind ~allow_inline:false
+      (fun conf elt ->
+        update conf ~f:(fun f -> {f with remove_useless_else_unit= elt}) )
+      (fun conf -> conf.fmt_opts.remove_useless_else_unit)
+
+  let remove_useless_sequence_unit =
+    let doc = "Removal of useless unit in sequences of statements." in
+    let names = ["remove-useless-sequence-unit"] in
+    Decl.flag ~names ~default ~doc ~kind ~allow_inline:false
+      (fun conf elt ->
+        update conf ~f:(fun f -> {f with remove_useless_sequence_unit= elt}) )
+      (fun conf -> conf.fmt_opts.remove_useless_sequence_unit)
+
   let let_and =
     let doc = "Style of let_and." in
     let names = ["let-and"] in
@@ -1334,6 +1356,8 @@ module Formatting = struct
       ; elt indicate_nested_or_patterns
       ; elt infix_precedence
       ; elt leading_nested_match_parens
+      ; elt remove_useless_else_unit
+      ; elt remove_useless_sequence_unit
       ; elt let_and
       ; elt let_binding_indent
       ; elt let_binding_deindent_fun

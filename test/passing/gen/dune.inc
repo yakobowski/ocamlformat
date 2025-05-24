@@ -4883,6 +4883,42 @@
  (deps .ocamlformat)
  (package ocamlformat)
  (action
+  (with-stdout-to remove_useless_else_unit.ml.stdout
+   (with-stderr-to remove_useless_else_unit.ml.stderr
+     (run %{bin:ocamlformat} --name remove_useless_else_unit.ml --margin-check --remove-useless-else-unit %{dep:../tests/remove_useless_else_unit.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff remove_useless_else_unit.ml.ref remove_useless_else_unit.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff remove_useless_else_unit.ml.err remove_useless_else_unit.ml.stderr)))
+
+(rule
+ (deps .ocamlformat)
+ (package ocamlformat)
+ (action
+  (with-stdout-to remove_useless_sequence_unit.ml.stdout
+   (with-stderr-to remove_useless_sequence_unit.ml.stderr
+     (run %{bin:ocamlformat} --name remove_useless_sequence_unit.ml --margin-check --remove-useless-sequence-unit %{dep:../tests/remove_useless_sequence_unit.ml})))))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff remove_useless_sequence_unit.ml.ref remove_useless_sequence_unit.ml.stdout)))
+
+(rule
+ (alias runtest)
+ (package ocamlformat)
+ (action (diff remove_useless_sequence_unit.ml.err remove_useless_sequence_unit.ml.stderr)))
+
+(rule
+ (deps .ocamlformat)
+ (package ocamlformat)
+ (action
   (with-stdout-to repl.ml.stdout
    (with-stderr-to repl.ml.stderr
      (run %{bin:ocamlformat} --name repl.ml --margin-check --parse-toplevel-phrases --repl-file %{dep:../tests/repl.ml})))))

@@ -384,10 +384,10 @@ OPTIONS (CODE FORMATTING STYLE)
            making some syntactic gotchas visually obvious. The janestreet
            profile is used at Jane Street. The default value is default.
 
-       --remove-useless-else-unit=[true|false] (default: false)
+       --remove-useless-else-unit (default: false)
            Remove `else ()` from `if ... then ... else ()` expressions.
 
-       --remove-useless-sequence-unit=[true|false] (default: false)
+       --remove-useless-sequence-unit (default: false)
            Remove `()` from sequences of statements (e.g., `a; (); b` or `a; b; ()`).
 
        --parens-ite

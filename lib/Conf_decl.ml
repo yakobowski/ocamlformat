@@ -482,32 +482,3 @@ let print_config store c =
     | `Removed _ -> ()
   in
   List.iter store ~f:on_pack
-
-let common_opts_list =
-  let fmt_opts = Conf_t.default_fmt_opts in
-  let default_conf = Conf_t.{fmt_opts; opr_opts= Conf_t.default_opr_opts} in
-  [ Pack
-      (any Arg.int ~names:["margin"] ~default:default_conf.fmt_opts.margin
-         ~docv:"COLS" ~doc:"Format code to fit within $(docv) columns."
-         ~kind:Formatting
-         (fun conf elt -> {conf with fmt_opts= {conf.fmt_opts with margin= elt}})
-         (fun conf -> conf.fmt_opts.margin) )
-  ; Pack
-      (flag ~names:["remove-useless-else-unit"]
-         ~default:(fun _ -> default_conf.fmt_opts.remove_useless_else_unit)
-         ~doc:"Remove `else ()` from `if ... then ... else ()` expressions."
-         ~kind:Formatting
-         (fun conf elt ->
-           {conf with fmt_opts= {conf.fmt_opts with remove_useless_else_unit= elt}} )
-         (fun conf -> conf.fmt_opts.remove_useless_else_unit) )
-  ; Pack
-      (flag ~names:["remove-useless-sequence-unit"]
-         ~default:(fun _ -> default_conf.fmt_opts.remove_useless_sequence_unit)
-         ~doc:
-           "Remove `()` from sequences of statements (e.g., `a; (); b` or `a; \
-            b; ()`)."
-         ~kind:Formatting
-         (fun conf elt ->
-           { conf with
-             fmt_opts= {conf.fmt_opts with remove_useless_sequence_unit= elt} } )
-         (fun conf -> conf.fmt_opts.remove_useless_sequence_unit) ) ]

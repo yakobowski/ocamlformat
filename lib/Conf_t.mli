@@ -117,7 +117,9 @@ type fmt_opts =
   ; type_decl_indent: int elt
   ; wrap_comments: bool elt  (** Wrap comments at margin. *)
   ; wrap_docstrings: bool elt
-  ; wrap_fun_args: bool elt }
+  ; wrap_fun_args: bool elt
+  ; remove_useless_else_unit: bool elt
+  ; remove_useless_sequence_unit: bool elt }
 
 (** Options changing the tool's behavior *)
 type opr_opts =

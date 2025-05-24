@@ -79,14 +79,13 @@ let make_mapper conf ~ignore_doc_comments =
     let exp = {exp with pexp_loc_stack= []} in
     let {pexp_desc; pexp_loc= loc1; pexp_attributes= attrs1; _} = exp in
     match pexp_desc with
-    | Pexp_poly (({pexp_desc= Pexp_constraint (e, t); _} as poly_exp), None) ->
-        m.expr m {exp with pexp_desc= Pexp_poly (poly_exp, Some t)}
+    | Pexp_poly ({pexp_desc= Pexp_constraint (e, t); _}, None) ->
+        m.expr m {exp with pexp_desc= Pexp_poly (e, Some t)}
     | Pexp_constraint (e, {ptyp_desc= Ptyp_poly ([], _t); _}) -> m.expr m e
     | Pexp_ifthenelse (if_expr, then_expr, Some else_expr_opt)
       when conf.fmt_opts.remove_useless_else_unit.v -> (
       match else_expr_opt.pexp_desc with
       | Pexp_construct ({txt= Lident "()"; _}, None) ->
-          Cmts.drop_inside conf else_expr_opt.pexp_loc ;
           let if_expr = m.expr m if_expr in
           let then_expr = m.expr m then_expr in
           Exp.ifthenelse ~loc:loc1 ~attrs:attrs1 if_expr then_expr None
@@ -97,16 +96,12 @@ let make_mapper conf ~ignore_doc_comments =
           Ast_mapper.default_mapper.expr m
             (Exp.ifthenelse ~loc:loc1 ~attrs:attrs1 if_expr then_expr
                (Some else_expr_opt) ) )
-    | Pexp_sequence (raw_e1, raw_e2) ->
-        let e1 = m.expr m raw_e1 in
-        let e2 = m.expr m raw_e2 in
+    | Pexp_sequence (e1, e2) ->
         if conf.fmt_opts.remove_useless_sequence_unit.v then
           match e1.pexp_desc, e2.pexp_desc with
-          | Pexp_construct ({txt= Lident "()"; loc=loc_unit_e1; _}, None), _ ->
-              Cmts.drop_inside conf loc_unit_e1;
+          | Pexp_construct ({txt= Lident "()"; _}, None), _ ->
               e2
-          | _, Pexp_construct ({txt= Lident "()"; loc=loc_unit_e2; _}, None) ->
-              Cmts.drop_inside conf loc_unit_e2;
+          | _, Pexp_construct ({txt= Lident "()"; _}, None) ->
               e1
           | _ ->
               (match e2.pexp_desc with
@@ -137,6 +132,7 @@ let make_mapper conf ~ignore_doc_comments =
   let pat (m : Ast_mapper.mapper) pat =
     let pat = {pat with ppat_loc_stack= []} in
     let {ppat_desc; ppat_loc= loc1; ppat_attributes= attrs1; _} = pat in
+    (* normalize nested or patterns *)
     match ppat_desc with
     | Ppat_or
         ( pat1
@@ -149,6 +145,9 @@ let make_mapper conf ~ignore_doc_comments =
              (Pat.or_ ~loc:loc2 ~attrs:attrs2 pat1 pat2)
              pat3 )
     | Ppat_constraint (pat1, {ptyp_desc= Ptyp_poly ([], _t); _}) ->
+        (* The parser put the same type constraint in two different nodes:
+           [let _ : typ = exp] is represented as [let _ : typ = (exp :
+           typ)]. *)
         m.pat m pat1
     | _ -> Ast_mapper.default_mapper.pat m pat
   in
