@@ -121,7 +121,8 @@ type fmt_opts =
 
 (** Options changing the tool's behavior *)
 type opr_opts =
-  { comment_check: bool elt
+  { stabilize_check: bool elt
+  ; comment_check: bool elt
   ; debug: bool elt  (** Generate debugging output if true. *)
   ; disable: bool elt
   ; margin_check: bool elt

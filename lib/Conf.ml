@@ -255,7 +255,8 @@ let default =
   { fmt_opts= default_profile `Default
   ; profile= elt `default
   ; opr_opts=
-      { comment_check= elt true
+      { stabilize_check= elt true
+      ; comment_check= elt true
       ; debug= elt false
       ; disable= elt false
       ; margin_check= elt false
@@ -1383,6 +1384,17 @@ let kind = Decl.Operational
 module Operational = struct
   let update ~f c = {c with opr_opts= f c.opr_opts}
 
+  let stabilize_check =
+    let doc =
+      "Enable or disable the check to see if the formatted code is stable. \
+       If `no-stabilize-check` is passed, the check is disabled and the \
+       formatted code is returned whatever the result of the check is."
+    in
+    Decl.flag ~default ~names:["stabilize-check"] ~doc ~kind
+      (fun conf elt ->
+        update conf ~f:(fun f -> {f with stabilize_check= elt}) )
+      (fun conf -> conf.opr_opts.stabilize_check)
+
   let comment_check =
     let doc =
       "Control whether to check comments and documentation comments. Unsafe \
@@ -1455,7 +1467,8 @@ module Operational = struct
 
   let options : Store.t =
     Store.
-      [ elt comment_check
+      [ elt stabilize_check
+      ; elt comment_check
       ; elt debug
       ; elt disable
       ; elt margin_check

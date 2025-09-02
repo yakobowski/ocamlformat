@@ -122,7 +122,8 @@ type fmt_opts =
   ; wrap_fun_args: bool elt }
 
 type opr_opts =
-  { comment_check: bool elt
+  { stabilize_check: bool elt
+  ; comment_check: bool elt
   ; debug: bool elt
   ; disable: bool elt
   ; margin_check: bool elt
