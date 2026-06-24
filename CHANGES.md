@@ -8,6 +8,11 @@ profile. This started with version 0.26.0.
 
 ### Fixed
 
+- Fix indentation of a bare `match`/`function`/`try` branch preceded by a
+  comment with `if-then-else=fit-or-vertical`: the branch is no longer
+  indented relative to the comment's end column.
+  (#2810, @MisterDA)
+
 - Fix formatting oscillation with `if-then-else=fit-or-vertical` and
   `begin...end`.
   (#2800, @MisterDA)

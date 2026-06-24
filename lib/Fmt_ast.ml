@@ -2593,7 +2593,12 @@ and fmt_expression c ?(box = true) ?(pro = noop) ?eol ?parens
                          let branch_pro =
                            match raw_cmts_after_kw with
                            | Some cmts ->
-                               Params.raw_cmts_branch_pro c.conf cmts
+                               let bare_branch =
+                                 Params.is_bare_branch ~parens_bch
+                                   xbch.ast.pexp_desc
+                               in
+                               Params.raw_cmts_branch_pro ~bare_branch c.conf
+                                 cmts
                            | None -> p.branch_pro
                          in
                          let wrap_beginend =

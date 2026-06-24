@@ -516,9 +516,22 @@ let is_special_or_nested_special_beginend = function
   | Pexp_beginend ({pexp_desc; _}, _) -> is_special_beginend pexp_desc
   | exp -> is_special_beginend exp
 
-let raw_cmts_branch_pro (c : Conf.t) cmts =
+(* An if-then-else branch is rendered "bare" when it is neither wrapped in
+   [begin]/[end] (including the [begin match end] shortcut, a
+   [Pexp_beginend]) nor parenthesized. *)
+let is_bare_branch ~parens_bch desc =
+  (not parens_bch) && match desc with Pexp_beginend _ -> false | _ -> true
+
+let raw_cmts_branch_pro ?(bare_branch = false) (c : Conf.t) cmts =
   match c.fmt_opts.if_then_else.v with
   | `Compact -> break 1000 0 $ cmts $ break 1000 0
+  (* A bare [match]/[function]/[try]/[if] branch breaks before its own body
+     with a [break_unless_newline], which is a no-op unless we are already at
+     the beginning of a line; without a trailing break here the branch box
+     would open at the comment's end column and indent the body relative to
+     it. A [begin]/[end]- or paren-wrapped branch instead emits its opening
+     delimiter right after the comment, so we leave the break to it. *)
+  | _ when bare_branch -> break 1000 2 $ cmts $ break 1000 2
   | _ -> break 1000 2 $ cmts
 
 type cases =
@@ -878,6 +891,7 @@ let get_if_then_else (c : Conf.t) ~cmts_before_opt ~pro ~first ~last
     | _ -> (None, None, xbch)
   in
   let has_beginend = Option.is_some beginend_loc in
+  let bare_branch = is_bare_branch ~parens_bch xbch.ast.pexp_desc in
   let wrap_parens ~wrap_breaks k =
     if has_beginend then
       let infix_ext_attrs_beginend =
@@ -942,13 +956,13 @@ let get_if_then_else (c : Conf.t) ~cmts_before_opt ~pro ~first ~last
       && (not has_cmts_after_kw) && guard
     then
       match cmts_before_opt xbch.ast.pexp_loc with
-      | Some cmts -> raw_cmts_branch_pro c cmts
+      | Some cmts -> raw_cmts_branch_pro ~bare_branch c cmts
       | None -> (
         match xbch.ast.pexp_desc with
         | Pexp_beginend ({pexp_loc; pexp_desc; _}, _)
           when is_special_beginend pexp_desc -> (
           match cmts_before_opt pexp_loc with
-          | Some cmts -> raw_cmts_branch_pro c cmts
+          | Some cmts -> raw_cmts_branch_pro ~bare_branch c cmts
           | None -> default )
         | _ -> default )
     else default

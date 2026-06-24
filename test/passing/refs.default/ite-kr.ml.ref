@@ -306,3 +306,11 @@ let _ =
         iter (i + 1) ~a ~b:s ~c:b ~d:c ~fa ~fb:fs ~fc:fb mflag
     else
       g
+
+(* Short comment before a bare match in the else branch: the match must stay
+   indented under the comment, not pushed to its end column (regression test) *)
+let _ =
+  if cond then
+    x
+  else
+    (* a comment *) match e with A -> a | B -> b
