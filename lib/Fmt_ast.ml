@@ -3038,12 +3038,25 @@ and fmt_beginend c ~loc ?(box = true) ?(pro = noop) ~ctx ~ctx0 ~fmt_atrs
   cmts_before
   $
   match e.pexp_desc with
-  | Pexp_match _ | Pexp_try _ | Pexp_function _ | Pexp_ifthenelse _ ->
-      beginend_box
-        (fmt_expression c
-           ~pro:(pro $ begin_ $ str " ")
-           ~box:false ?eol ~parens:false ~indent_wrap (sub_exp ~ctx e) )
-      $ end_
+  | Pexp_match _ | Pexp_try _ | Pexp_function _ | Pexp_ifthenelse _ -> (
+      let body ~pro =
+        beginend_box
+          (fmt_expression c
+             ~pro:(pro $ begin_ $ str " ")
+             ~box:false ?eol ~parens:false ~indent_wrap (sub_exp ~ctx e) )
+      in
+      match ctx0 with
+      | Exp {pexp_desc= Pexp_ifthenelse _; _} ->
+          (* In an [if-then-else] branch [pro] is the branch break, which for
+             [if-then-else=fit-or-vertical] is a wide [break_unless_newline].
+             Threading it into the inner expression's [pro] would inflate the
+             header box's width and wrongly break it (e.g. [begin match] /
+             [x] / [with]); the branch break already placed us, so emit it
+             outside. The [begin] is then indented by the branch break while
+             [end] would follow the enclosing box, so wrap both in a box to
+             keep [end] aligned with [begin]. *)
+          pro $ hvbox 0 (body ~pro:noop $ end_)
+      | _ -> body ~pro $ end_ )
   | _ ->
       beginend_box
         ( hvbox 0 (pro $ begin_)
